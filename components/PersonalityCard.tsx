@@ -64,12 +64,13 @@ export default function PersonalityCard({ profile, topTracks, topGenres, cardRef
   const trackNames = topTracks.slice(0, 3).map((track) => track.name);
 
   return (
-    <section className="space-y-4">
+    <section className="animate-fade-up space-y-4" style={{ animationDelay: "500ms" }}>
       <div
         ref={cardRef}
-        className="relative flex h-[340px] w-full max-w-[600px] overflow-hidden rounded-[2rem] border border-white/5 bg-[linear-gradient(135deg,#0a0a0a_0%,#1a1a1a_100%)] p-6 shadow-2xl"
+        className="relative flex h-[340px] w-full max-w-[600px] overflow-hidden rounded-[2rem] border border-white/[0.08] bg-white/[0.04] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-sm"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(29,185,84,0.14),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(29,185,84,0.08),transparent_30%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(29,185,84,0.16),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(29,185,84,0.08),transparent_30%)]" />
+        <div className="absolute inset-0 animate-shimmer bg-[linear-gradient(120deg,rgba(29,185,84,0)_0%,rgba(29,185,84,0.08)_18%,rgba(255,255,255,0.04)_32%,rgba(29,185,84,0.12)_50%,rgba(255,255,255,0.04)_68%,rgba(29,185,84,0.08)_82%,rgba(29,185,84,0)_100%)] bg-[length:200%_200%] opacity-70 mix-blend-screen" />
 
         <div className="relative z-10 flex h-full w-full flex-col justify-between">
           <div className="flex items-start justify-between gap-4">

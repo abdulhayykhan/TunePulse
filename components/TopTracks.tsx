@@ -3,13 +3,13 @@ import type { SpotifyTrack } from "@/types/spotify";
 import { getTrackArtists, getTrackImage } from "@/lib/spotify";
 
 interface TopTracksProps {
-  tracks: SpotifyTrack[];
-  isLoading: boolean;
+  readonly tracks: SpotifyTrack[];
+  readonly isLoading: boolean;
 }
 
-export default function TopTracks({ tracks, isLoading }: TopTracksProps) {
+export default function TopTracks({ tracks, isLoading }: Readonly<TopTracksProps>) {
   return (
-    <section className="rounded-[1.75rem] border border-white/5 bg-[#101010] p-6 shadow-glow">
+    <section className="animate-fade-up rounded-[1.75rem] border border-white/[0.08] bg-white/[0.04] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-sm transition hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_0_1px_rgba(29,185,84,0.12)]" style={{ animationDelay: "100ms" }}>
       <div className="mb-5 flex items-end justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.28em] text-accent">Top tracks</p>
@@ -21,7 +21,7 @@ export default function TopTracks({ tracks, isLoading }: TopTracksProps) {
       <div className="space-y-3">
         {isLoading
           ? Array.from({ length: 10 }, (_, index) => (
-              <div key={index} className="flex animate-pulse items-center gap-4 rounded-2xl border border-white/5 bg-white/[0.03] p-3">
+              <div key={index} className="flex animate-pulse items-center gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3 backdrop-blur-sm">
                 <div className="h-8 w-6 rounded bg-white/10" />
                 <div className="h-12 w-12 rounded-lg bg-white/10" />
                 <div className="min-w-0 flex-1 space-y-2">
@@ -39,8 +39,10 @@ export default function TopTracks({ tracks, isLoading }: TopTracksProps) {
                   href={track.external_urls.spotify}
                   target="_blank"
                   rel="noreferrer"
-                  className="group flex items-center gap-4 rounded-2xl border border-transparent border-l-accent/0 bg-white/[0.03] p-3 transition hover:border-l-accent hover:bg-white/[0.05]"
+                  className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.04] p-3 pl-4 backdrop-blur-sm transition hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_0_1px_rgba(29,185,84,0.12)]"
                 >
+                  <span className="absolute left-0 top-0 h-full w-0 bg-accent transition-all duration-300 group-hover:w-[3px]" />
+
                   <div className="w-6 text-right text-sm font-semibold text-zinc-500 group-hover:text-zinc-300">
                     {index + 1}
                   </div>

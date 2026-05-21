@@ -118,10 +118,11 @@ export default function DashboardPage() {
 
   const personalitySource = topTracks.slice(0, 3);
   const genreSource = topGenres.slice(0, 3);
+  const activeTabIndex = Math.max(0, rangeTabs.findIndex((tab) => tab.value === timeRange));
 
   return (
     <div className="space-y-8 pb-10">
-      <section className="rounded-[2rem] border border-white/5 bg-white/[0.03] p-6 shadow-glow">
+      <section className="animate-fade-up rounded-[2rem] border border-white/[0.08] bg-white/[0.04] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-sm transition hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_0_1px_rgba(29,185,84,0.12)]" style={{ animationDelay: "0ms" }}>
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
             <p className="text-sm uppercase tracking-[0.3em] text-accent">Listener dashboard</p>
@@ -131,7 +132,11 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="inline-flex rounded-full border border-white/10 bg-black/30 p-1">
+          <div className="relative inline-flex rounded-full border border-white/10 bg-black/30 p-1">
+            <span
+              className="absolute left-1 top-1 h-[calc(100%-0.5rem)] w-[calc((100%-0.5rem)/3)] rounded-full bg-accent shadow-[0_0_22px_rgba(29,185,84,0.24)] transition-transform duration-300 ease-out"
+              style={{ transform: `translateX(${activeTabIndex * 100}%)` }}
+            />
             {rangeTabs.map((tab) => {
               const active = tab.value === timeRange;
               return (
@@ -139,8 +144,8 @@ export default function DashboardPage() {
                   key={tab.value}
                   type="button"
                   onClick={() => setTimeRange(tab.value)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                    active ? "bg-accent text-black" : "text-zinc-400 hover:text-white"
+                  className={`relative z-10 rounded-full px-4 py-2 text-sm font-medium transition ${
+                    active ? "text-black" : "text-zinc-400 hover:text-white"
                   }`}
                 >
                   {tab.label}
@@ -168,7 +173,7 @@ export default function DashboardPage() {
         cardRef={cardRef}
       />
 
-      <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-5 text-sm text-zinc-400">
+      <div className="animate-fade-up rounded-2xl border border-white/[0.08] bg-white/[0.04] p-5 text-sm text-zinc-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-sm transition hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_0_1px_rgba(29,185,84,0.12)]" style={{ animationDelay: "600ms" }}>
         <p>Recent plays loaded: {recentItems.length}</p>
       </div>
     </div>
