@@ -47,7 +47,7 @@ export async function GET() {
   const genreFrequency = new Map<string, number>();
 
   for (const artist of topArtists.items) {
-    for (const genre of artist.genres) {
+    for (const genre of artist?.genres ?? []) {
       genreFrequency.set(genre, (genreFrequency.get(genre) ?? 0) + 1);
     }
   }

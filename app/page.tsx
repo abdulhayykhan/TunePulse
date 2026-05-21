@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import TunePulseLogo from "@/components/TunePulseLogo";
 
 export default function HomePage() {
   const router = useRouter();
@@ -20,6 +21,9 @@ export default function HomePage() {
       <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-3xl" />
 
       <div className="relative z-10 flex w-full max-w-2xl flex-col items-center text-center">
+        <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-3xl border border-white/10 bg-white/5 shadow-glow">
+          <TunePulseLogo className="h-10 w-10" />
+        </div>
         <p className="mb-4 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs uppercase tracking-[0.4em] text-zinc-400">
           TunePulse
         </p>

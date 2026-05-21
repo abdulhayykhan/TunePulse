@@ -28,7 +28,7 @@ export default function TopArtists({ artists, isLoading }: TopArtistsProps) {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {artists.map((artist) => {
             const image = artist.images[0]?.url;
-            const genre = artist.genres[0] ?? "genreless";
+            const genre = artist?.genres?.[0] ?? "genreless";
 
             return (
               <a
