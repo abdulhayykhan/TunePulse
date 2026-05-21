@@ -2,11 +2,11 @@ import Image from "next/image";
 import type { SpotifyArtist } from "@/types/spotify";
 
 interface TopArtistsProps {
-  artists: SpotifyArtist[];
-  isLoading: boolean;
+  readonly artists: SpotifyArtist[];
+  readonly isLoading: boolean;
 }
 
-export default function TopArtists({ artists, isLoading }: TopArtistsProps) {
+export default function TopArtists({ artists, isLoading }: Readonly<TopArtistsProps>) {
   return (
     <section className="rounded-[1.75rem] border border-white/5 bg-[#101010] p-6 shadow-glow">
       <div className="mb-5">
@@ -28,7 +28,7 @@ export default function TopArtists({ artists, isLoading }: TopArtistsProps) {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {artists.map((artist) => {
             const image = artist.images[0]?.url;
-            const genre = artist?.genres?.[0] ?? "genreless";
+            const genre = artist?.genres?.[0] ?? null;
 
             return (
               <a
@@ -44,9 +44,11 @@ export default function TopArtists({ artists, isLoading }: TopArtistsProps) {
                   ) : null}
                 </div>
                 <h3 className="mt-4 truncate font-semibold text-white">{artist.name}</h3>
-                <p className="mt-2 line-clamp-1 rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
-                  {genre}
-                </p>
+                {genre ? (
+                  <p className="mt-2 line-clamp-1 rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
+                    {genre}
+                  </p>
+                ) : null}
               </a>
             );
           })}

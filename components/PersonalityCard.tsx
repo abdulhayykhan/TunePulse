@@ -6,10 +6,10 @@ import html2canvas from "html2canvas";
 import type { GenreCount, SpotifyProfile, SpotifyTrack } from "@/types/spotify";
 
 interface PersonalityCardProps {
-  profile: SpotifyProfile | null;
-  topTracks: SpotifyTrack[];
-  topGenres: GenreCount[];
-  cardRef: RefObject<HTMLDivElement | null>;
+  readonly profile: SpotifyProfile | null;
+  readonly topTracks: SpotifyTrack[];
+  readonly topGenres: GenreCount[];
+  readonly cardRef: RefObject<HTMLDivElement | null>;
 }
 
 function getPersonalityLabel(genre?: string) {
@@ -54,9 +54,11 @@ async function exportCard(cardElement: HTMLDivElement | null) {
   link.click();
 }
 
-export default function PersonalityCard({ profile, topTracks, topGenres, cardRef }: PersonalityCardProps) {
+export default function PersonalityCard({ profile, topTracks, topGenres, cardRef }: Readonly<PersonalityCardProps>) {
   const displayName = profile?.display_name ?? "TunePulse fan";
-  const spotifyId = profile?.id ? `@${profile.id}` : "@spotify";
+  const spotifyId = profile?.display_name
+    ? `@${profile.display_name.toLowerCase().replace(/\s+/g, "")}`
+    : "@spotify";
   const avatar = profile?.images[0]?.url;
   const label = getPersonalityLabel(topGenres[0]?.genre);
   const trackNames = topTracks.slice(0, 3).map((track) => track.name);

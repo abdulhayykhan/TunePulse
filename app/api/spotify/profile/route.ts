@@ -1,9 +1,80 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import type { GenreCount, SpotifyArtist, SpotifyProfile, SpotifyTopResponse } from "@/types/spotify";
+import type { GenreCount, SpotifyArtist, SpotifyProfile, SpotifyTopResponse, SpotifyTrack } from "@/types/spotify";
 
 export const dynamic = "force-dynamic";
+
+function collectArtistGenres(artists: SpotifyArtist[]): string[] {
+  return artists.flatMap((artist) => artist?.genres ?? []);
+}
+
+function countGenres(genres: string[]): GenreCount[] {
+  const genreFrequency = new Map<string, number>();
+
+  genres.forEach((genre) => {
+    genreFrequency.set(genre, (genreFrequency.get(genre) ?? 0) + 1);
+  });
+
+  return Array.from(genreFrequency.entries())
+    .map(([genre, count]) => ({ genre, count }))
+    .sort((left, right) => right.count - left.count)
+    .slice(0, 8);
+}
+
+function buildTopGenres(artists: SpotifyArtist[]): GenreCount[] {
+  return countGenres(collectArtistGenres(artists));
+}
+
+async function fetchGenresFromTopTracks(sessionToken: string): Promise<GenreCount[]> {
+  const topTracksResponse = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=50", {
+    headers: {
+      Authorization: `Bearer ${sessionToken}`,
+    },
+  });
+
+  if (!topTracksResponse.ok) {
+    return [];
+  }
+
+  const topTracks = (await topTracksResponse.json()) as SpotifyTopResponse<SpotifyTrack>;
+  const artistIds = Array.from(
+    new Set(
+      topTracks.items
+        .flatMap((track) => track.artists ?? [])
+        .map((artist) => artist.id)
+        .filter(Boolean),
+    ),
+  );
+
+  const genreFrequency = new Map<string, number>();
+
+  for (let index = 0; index < artistIds.length; index += 50) {
+    const batchIds = artistIds.slice(index, index + 50);
+    const artistsResponse = await fetch(`https://api.spotify.com/v1/artists?ids=${batchIds.join(",")}`, {
+      headers: {
+        Authorization: `Bearer ${sessionToken}`,
+      },
+    });
+
+    if (!artistsResponse.ok) {
+      continue;
+    }
+
+    const artistsData = (await artistsResponse.json()) as { artists: SpotifyArtist[] };
+
+    for (const artist of artistsData.artists ?? []) {
+      for (const genre of artist?.genres ?? []) {
+        genreFrequency.set(genre, (genreFrequency.get(genre) ?? 0) + 1);
+      }
+    }
+  }
+
+  return Array.from(genreFrequency.entries())
+    .map(([genre, count]) => ({ genre, count }))
+    .sort((left, right) => right.count - left.count)
+    .slice(0, 8);
+}
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -44,18 +115,11 @@ export async function GET() {
   const profile = (await profileResponse.json()) as SpotifyProfile;
   const topArtists = (await topArtistsResponse.json()) as SpotifyTopResponse<SpotifyArtist>;
 
-  const genreFrequency = new Map<string, number>();
+  let topGenres = buildTopGenres(topArtists.items);
 
-  for (const artist of topArtists.items) {
-    for (const genre of artist?.genres ?? []) {
-      genreFrequency.set(genre, (genreFrequency.get(genre) ?? 0) + 1);
-    }
+  if (topGenres.length === 0) {
+    topGenres = await fetchGenresFromTopTracks(session.accessToken);
   }
-
-  const topGenres: GenreCount[] = Array.from(genreFrequency.entries())
-    .map(([genre, count]) => ({ genre, count }))
-    .sort((left, right) => right.count - left.count)
-    .slice(0, 8);
 
   return NextResponse.json({ profile, topGenres });
 }
