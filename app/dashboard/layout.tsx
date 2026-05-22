@@ -6,7 +6,12 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import TunePulseLogo from "@/components/TunePulseLogo";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+interface DashboardLayoutProps {
+  readonly children: React.ReactNode;
+}
+
+export default function DashboardLayout(props: DashboardLayoutProps) {
+  const { children } = props;
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -36,7 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-bg text-zinc-100">
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-black/70 backdrop-blur-xl">
+      <header className="z-20 border-b border-white/5 bg-black/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-accent/30 bg-accent/10 shadow-glow">

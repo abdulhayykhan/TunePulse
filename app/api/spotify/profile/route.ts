@@ -27,7 +27,7 @@ function buildTopGenres(artists: SpotifyArtist[]): GenreCount[] {
 }
 
 async function fetchGenresFromTopTracks(sessionToken: string): Promise<GenreCount[]> {
-  const topTracksResponse = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=50", {
+  const topTracksResponse = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=short_term", {
     headers: {
       Authorization: `Bearer ${sessionToken}`,
     },
@@ -45,7 +45,7 @@ async function fetchGenresFromTopTracks(sessionToken: string): Promise<GenreCoun
         .map((artist) => artist.id)
         .filter(Boolean),
     ),
-  );
+  ).slice(0, 50);
 
   const genreFrequency = new Map<string, number>();
 

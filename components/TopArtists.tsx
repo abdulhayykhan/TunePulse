@@ -15,9 +15,9 @@ export default function TopArtists({ artists, isLoading }: Readonly<TopArtistsPr
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-3 gap-4 md:grid-cols-4">
           {Array.from({ length: 8 }, (_, index) => (
-            <div key={index} className="animate-pulse rounded-[1.5rem] border border-white/[0.08] bg-white/[0.04] p-4 backdrop-blur-sm">
+            <div key={index} className="min-h-[13rem] animate-pulse rounded-[1.5rem] border border-white/[0.08] bg-white/[0.04] p-4 backdrop-blur-sm">
               <div className="mx-auto h-20 w-20 rounded-full bg-white/10" />
               <div className="mt-4 h-4 rounded bg-white/10" />
               <div className="mt-2 h-3 w-3/5 rounded bg-white/5" />
@@ -25,7 +25,7 @@ export default function TopArtists({ artists, isLoading }: Readonly<TopArtistsPr
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-3 gap-4 md:grid-cols-4">
           {artists.map((artist) => {
             const image = artist.images[0]?.url;
             const genre = artist?.genres?.[0] ?? null;
@@ -36,17 +36,17 @@ export default function TopArtists({ artists, isLoading }: Readonly<TopArtistsPr
                 href={artist.external_urls.spotify}
                 target="_blank"
                 rel="noreferrer"
-                className="group rounded-[1.5rem] border border-white/[0.08] bg-white/[0.04] p-4 text-center transition duration-200 backdrop-blur-sm hover:scale-[1.03] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_0_1px_rgba(29,185,84,0.14)]"
+                className="group min-h-[13rem] rounded-[1.5rem] border border-white/[0.08] bg-white/[0.04] p-4 text-center transition duration-200 backdrop-blur-sm hover:scale-[1.03] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_0_1px_rgba(29,185,84,0.14)]"
               >
                 <div className="relative mx-auto h-20 w-20">
                   <div className="absolute inset-0 rounded-full border border-accent/25 transition duration-300 group-hover:animate-pulse group-hover:border-accent/70 group-hover:shadow-[0_0_0_1px_rgba(29,185,84,0.3)]" />
                   <div className="absolute inset-[2px] overflow-hidden rounded-full bg-white/10">
-                  {image ? (
+                    {image ? (
                       <Image src={image} alt={artist.name} fill className="object-cover transition duration-300 group-hover:scale-[1.08]" sizes="80px" />
-                  ) : null}
+                    ) : null}
                   </div>
                 </div>
-                <h3 className="mt-4 truncate font-semibold text-white">{artist.name}</h3>
+                <h3 className="mt-4 line-clamp-2 text-wrap font-semibold leading-snug text-white">{artist.name}</h3>
                 {genre ? (
                   <p className="mt-2 line-clamp-1 rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
                     {genre}
