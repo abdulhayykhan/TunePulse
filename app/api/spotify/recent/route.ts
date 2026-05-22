@@ -17,16 +17,6 @@ function buildRecentlyPlayedUrl(before?: number) {
   return url.toString();
 }
 
-function getOldestCursor(items: SpotifyRecentlyPlayed["items"]) {
-  const oldestPlayedAt = items.at(-1)?.played_at;
-
-  if (!oldestPlayedAt) {
-    return undefined;
-  }
-
-  return new Date(oldestPlayedAt).getTime();
-}
-
 function mergeRecentlyPlayedPages(...pages: SpotifyRecentlyPlayed["items"][]) {
   const merged = new Map<string, SpotifyRecentlyPlayed["items"][number]>();
 
@@ -62,13 +52,16 @@ export async function GET() {
   }
 
   try {
-    const page1 = await fetchRecentlyPlayedPage(session.accessToken);
-    const cursor1 = getOldestCursor(page1.items);
+    const now = Date.now();
+    const page1Before = undefined;
+    const page2Before = now - 24 * 60 * 60 * 1000;
+    const page3Before = now - 48 * 60 * 60 * 1000;
 
-    const page2 = cursor1 ? await fetchRecentlyPlayedPage(session.accessToken, cursor1) : { items: [] };
-    const cursor2 = getOldestCursor(page2.items);
-
-    const page3 = cursor2 ? await fetchRecentlyPlayedPage(session.accessToken, cursor2) : { items: [] };
+    const [page1, page2, page3] = await Promise.all([
+      fetchRecentlyPlayedPage(session.accessToken, page1Before),
+      fetchRecentlyPlayedPage(session.accessToken, page2Before),
+      fetchRecentlyPlayedPage(session.accessToken, page3Before),
+    ]);
 
     const mergedItems = mergeRecentlyPlayedPages(page1.items, page2.items, page3.items);
     const heatmap = createHeatmapGrid(mergedItems);
