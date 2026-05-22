@@ -26,6 +26,21 @@ function buildTopGenres(artists: SpotifyArtist[]): GenreCount[] {
   return countGenres(collectArtistGenres(artists));
 }
 
+async function fetchGenresFromTopArtists(sessionToken: string, timeRange: "short_term" | "medium_term"): Promise<GenreCount[]> {
+  const response = await fetch(`https://api.spotify.com/v1/me/top/artists?time_range=${timeRange}&limit=50`, {
+    headers: {
+      Authorization: `Bearer ${sessionToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    return [];
+  }
+
+  const topArtists = (await response.json()) as SpotifyTopResponse<SpotifyArtist>;
+  return buildTopGenres(topArtists.items);
+}
+
 async function fetchGenresFromTopTracks(sessionToken: string): Promise<GenreCount[]> {
   const topTracksResponse = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=short_term", {
     headers: {
@@ -116,6 +131,10 @@ export async function GET() {
   const topArtists = (await topArtistsResponse.json()) as SpotifyTopResponse<SpotifyArtist>;
 
   let topGenres = buildTopGenres(topArtists.items);
+
+  if (topGenres.length === 0) {
+    topGenres = await fetchGenresFromTopArtists(session.accessToken, "medium_term");
+  }
 
   if (topGenres.length === 0) {
     topGenres = await fetchGenresFromTopTracks(session.accessToken);
