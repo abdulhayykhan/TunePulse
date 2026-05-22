@@ -162,7 +162,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-        <GenreBreakdown genres={topGenres} isLoading={isProfileLoading} />
+        <GenreBreakdown genres={topGenres} isLoading={isProfileLoading} topArtistNames={topArtists.slice(0, 3).map((artist) => artist.name)} />
         <ListeningHeatmap heatmap={heatmap} isLoading={isRecentLoading} />
       </div>
 
