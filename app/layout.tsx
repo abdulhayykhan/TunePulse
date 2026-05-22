@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: "TunePulse",
   description: "Decode your Spotify listening patterns with TunePulse.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/favicon.svg",
   },
 };
 
