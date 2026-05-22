@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import type { GenreCount, SpotifyArtist, SpotifyProfile, SpotifyTopResponse, SpotifyTrack } from "@/types/spotify";
+import type { GenreCount, SpotifyArtist, SpotifyProfile, SpotifyTopResponse } from "@/types/spotify";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +26,7 @@ function buildTopGenres(artists: SpotifyArtist[]): GenreCount[] {
   return countGenres(collectArtistGenres(artists));
 }
 
-async function fetchGenresFromTopArtists(sessionToken: string, timeRange: "short_term" | "medium_term"): Promise<GenreCount[]> {
+async function fetchGenresFromTopArtists(sessionToken: string, timeRange: "short_term" | "medium_term" | "long_term"): Promise<GenreCount[]> {
   const response = await fetch(`https://api.spotify.com/v1/me/top/artists?time_range=${timeRange}&limit=50`, {
     headers: {
       Authorization: `Bearer ${sessionToken}`,
@@ -41,54 +41,38 @@ async function fetchGenresFromTopArtists(sessionToken: string, timeRange: "short
   return buildTopGenres(topArtists.items);
 }
 
-async function fetchGenresFromTopTracks(sessionToken: string): Promise<GenreCount[]> {
-  const topTracksResponse = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=short_term", {
-    headers: {
-      Authorization: `Bearer ${sessionToken}`,
-    },
-  });
-
-  if (!topTracksResponse.ok) {
-    return [];
-  }
-
-  const topTracks = (await topTracksResponse.json()) as SpotifyTopResponse<SpotifyTrack>;
-  const artistIds = Array.from(
-    new Set(
-      topTracks.items
-        .flatMap((track) => track.artists ?? [])
-        .map((artist) => artist.id)
-        .filter(Boolean),
-    ),
-  ).slice(0, 50);
-
-  const genreFrequency = new Map<string, number>();
-
-  for (let index = 0; index < artistIds.length; index += 50) {
-    const batchIds = artistIds.slice(index, index + 50);
-    const artistsResponse = await fetch(`https://api.spotify.com/v1/artists?ids=${batchIds.join(",")}`, {
+async function fetchGenresFromAllTopArtists(sessionToken: string): Promise<GenreCount[]> {
+  const [shortTermResponse, mediumTermResponse, longTermResponse] = await Promise.all([
+    fetch("https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=50", {
       headers: {
         Authorization: `Bearer ${sessionToken}`,
       },
-    });
+    }),
+    fetch("https://api.spotify.com/v1/me/top/artists?time_range=medium_term&limit=50", {
+      headers: {
+        Authorization: `Bearer ${sessionToken}`,
+      },
+    }),
+    fetch("https://api.spotify.com/v1/me/top/artists?time_range=long_term&limit=50", {
+      headers: {
+        Authorization: `Bearer ${sessionToken}`,
+      },
+    }),
+  ]);
 
-    if (!artistsResponse.ok) {
+  const responses = [shortTermResponse, mediumTermResponse, longTermResponse];
+  const allArtists: SpotifyArtist[] = [];
+
+  for (const response of responses) {
+    if (!response.ok) {
       continue;
     }
 
-    const artistsData = (await artistsResponse.json()) as { artists: SpotifyArtist[] };
-
-    for (const artist of artistsData.artists ?? []) {
-      for (const genre of artist?.genres ?? []) {
-        genreFrequency.set(genre, (genreFrequency.get(genre) ?? 0) + 1);
-      }
-    }
+    const data = (await response.json()) as SpotifyTopResponse<SpotifyArtist>;
+    allArtists.push(...(data.items ?? []));
   }
 
-  return Array.from(genreFrequency.entries())
-    .map(([genre, count]) => ({ genre, count }))
-    .sort((left, right) => right.count - left.count)
-    .slice(0, 8);
+  return buildTopGenres(allArtists);
 }
 
 export async function GET() {
@@ -133,11 +117,7 @@ export async function GET() {
   let topGenres = buildTopGenres(topArtists.items);
 
   if (topGenres.length === 0) {
-    topGenres = await fetchGenresFromTopArtists(session.accessToken, "medium_term");
-  }
-
-  if (topGenres.length === 0) {
-    topGenres = await fetchGenresFromTopTracks(session.accessToken);
+    topGenres = await fetchGenresFromAllTopArtists(session.accessToken);
   }
 
   return NextResponse.json({ profile, topGenres });
