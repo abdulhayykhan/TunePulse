@@ -4,7 +4,7 @@ import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, Responsi
 interface GenreBreakdownProps {
   readonly genres: GenreCount[];
   readonly isLoading: boolean;
-  readonly topArtistNames: string[];
+  readonly artistNames: string[];
 }
 
 interface GenreTooltipProps {
@@ -28,7 +28,7 @@ function GenreTooltip({ active, payload }: GenreTooltipProps) {
 }
 
 export default function GenreBreakdown(props: GenreBreakdownProps) {
-  const { genres, isLoading, topArtistNames } = props;
+  const { genres, isLoading, artistNames } = props;
   const chartData = genres.slice(0, 6);
   const chart = (
     <ResponsiveContainer width="100%" height={320}>
@@ -53,12 +53,16 @@ export default function GenreBreakdown(props: GenreBreakdownProps) {
     content = chart;
   } else {
     content = (
-      <div className="flex min-h-[320px] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.03] px-4 text-center text-sm text-zinc-500 backdrop-blur-sm">
-        <p className="max-w-md text-zinc-300">Your artists are genre-less rebels - Spotify hasn't tagged them yet.</p>
+      <div className="flex min-h-[320px] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.03] px-4 text-center backdrop-blur-sm">
+        <div className="mb-3 text-4xl text-accent" aria-hidden="true">
+          🎵
+        </div>
+        <p className="max-w-md text-lg font-semibold text-white">Genre-less rebels</p>
+        <p className="mt-2 max-w-md text-sm text-zinc-300">Your artists are too underground for Spotify's genre tags.</p>
 
-        {topArtistNames.length ? (
+        {artistNames.length ? (
           <div className="mt-4 flex flex-wrap justify-center gap-2">
-            {topArtistNames.slice(0, 3).map((artistName) => (
+            {artistNames.slice(0, 3).map((artistName) => (
               <span key={artistName} className="rounded-full border border-white/8 bg-white/5 px-3 py-1 text-xs font-medium text-zinc-300">
                 {artistName}
               </span>
